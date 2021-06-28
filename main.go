@@ -78,4 +78,9 @@ func main() {
 		return
 	}
 	fmt.Printf("%+v\n", p)
+
+	fmt.Printf("There are %d astronauts on space\n", p.Number)
+	for _, a := range p.People {
+		fmt.Printf("Astronaut - %s on %s \n", a.Name, a.Craft)
+	}
 }
