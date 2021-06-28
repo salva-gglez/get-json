@@ -1,3 +1,3 @@
 # Sample json parse
 
-This is a sample json parser
+This is a json parser sample

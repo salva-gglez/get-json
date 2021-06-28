@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -20,15 +21,7 @@ type spacePeople struct {
 	Number  int         `json:"number"`
 }
 
-func main() {
-	/*
-		text := `{"people": [{"craft": "ISS", "name": "Sergey Rizhikov"}, {"craft": "ISS",
-		 "name": "Andrey Borisenko"}, {"craft": "ISS", "name": "Shane Kimbrough"}, {"craft":
-		 "ISS", "name": "Oleg Novitskiy"}, {"craft": "ISS", "name": "Thomas Pesquet"}, {"craft":
-		 "ISS", "name": "Peggy Whitson"}], "message": "success", "number": 6}`
-		textBytes := []byte(text)
-	*/
-
+func getAstros() ([]byte, error) {
 	url := "http://api.open-notify.org/astros.json"
 	spaceClient := http.Client{
 		Timeout: time.Second * 2, // 2 seconds
@@ -38,14 +31,14 @@ func main() {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return nil, errors.New("Get failed")
 	}
 	req.Header.Set("User-Agent", "my-golang-agent")
 
 	res, err := spaceClient.Do(req)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return nil, errors.New("Request failed")
 	}
 	if res.StatusCode != 200 {
 		fmt.Printf("Response error from server (%d)\n", res.StatusCode)
@@ -58,10 +51,27 @@ func main() {
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return nil, errors.New("Empty body")
 	}
 
+	return body, nil
+}
+
+func main() {
+	/*
+		text := `{"people": [{"craft": "ISS", "name": "Sergey Rizhikov"}, {"craft": "ISS",
+		 "name": "Andrey Borisenko"}, {"craft": "ISS", "name": "Shane Kimbrough"}, {"craft":
+		 "ISS", "name": "Oleg Novitskiy"}, {"craft": "ISS", "name": "Thomas Pesquet"}, {"craft":
+		 "ISS", "name": "Peggy Whitson"}], "message": "success", "number": 6}`
+		textBytes := []byte(text)
+	*/
+
 	p := spacePeople{}
+	body, err := getAstros()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	err = json.Unmarshal(body, &p)
 	if err != nil {
 		log.Fatalf("unable to parse value: %q, error: %s",
