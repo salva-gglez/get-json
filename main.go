@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -31,14 +30,14 @@ func getAstros() ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		fmt.Println(err)
-		return nil, errors.New("Get failed")
+		return nil, err
 	}
 	req.Header.Set("User-Agent", "my-golang-agent")
 
 	res, err := spaceClient.Do(req)
 	if err != nil {
 		fmt.Println(err)
-		return nil, errors.New("Request failed")
+		return nil, err
 	}
 	if res.StatusCode != 200 {
 		fmt.Printf("Response error from server (%d)\n", res.StatusCode)
@@ -51,7 +50,7 @@ func getAstros() ([]byte, error) {
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		return nil, errors.New("Empty body")
+		return nil, err
 	}
 
 	return body, nil
